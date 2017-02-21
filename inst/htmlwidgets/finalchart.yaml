@@ -1,0 +1,6 @@
+dependencies:
+  - name: app-v1
+    version: 2.6.2
+    src: htmlwidgets/lib
+    script: app-v1.js
+    stylesheet: app-v1.css
