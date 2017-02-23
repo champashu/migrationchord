@@ -138,25 +138,8 @@ return n?ua.touches(y,n)[0]:ua.mouse(y)}function f(){ua.event.keyCode==32&&(E||(
           });
         });
       }
-
-      // TODO: substract padding from chords, instead of adding it to chrord sum
-      // padding = 0;
-
-      // Convert the sum to scaling factor for [0, 2pi].
-      // TODO Allow start and end angle to be specified.
-      // TODO Allow padding to be specified as percentage?
-      k = (2 * π - padding * n) / k;
-
-      // Compute the start and end angle for each group and subgroup.
-      // Note: Opera has a bug reordering object literal properties!
-
-// ToDO :: sorts out the order of the chords.
-// ToDO :: sources > target ::: in-migrations >> out-migrations
-// ToDO :: target >> sources :: out-goings >> in-comings
-      //
-
-
-      var pikachu = 0 ;
+		
+		k = (2 * π - padding * n) / k;
 
       x = 0, i = -1; while (++i < n) {
         var inflow = 0;
@@ -455,7 +438,7 @@ return n?ua.touches(y,n)[0]:ua.mouse(y)}function f(){ua.event.keyCode==32&&(E||(
         t.a1 = t.a0 - (t.a1 - t.a0) / 2;
         t.p1 = [t.r * Math.cos(t.a1), t.r * Math.sin(t.a1)];
         t.aMid=(t.a1-t.a0)/2+t.a0;
-        t.pMid= [t.r * Math.cos(t.aMid), t.r * Math.sin(t.aMid)];  // TODO ::: r not defined ERROR !!!
+        t.pMid= [t.r * Math.cos(t.aMid), t.r * Math.sin(t.aMid)]; 
 
       }
 
@@ -789,10 +772,6 @@ curveFactor = config.curveFactor ;
         .innerRadius(config.outerRadius + 18) // position of the lower part of the circle
         .outerRadius(config.outerRadius + 18);  // position of the lower part of the circle
 
-
-    //todo ::::
-
-
     var textPathArc3 = d3.svg.arc()
         .innerRadius(config.outerRadius + 35) // position of the upper part of the circle
         .outerRadius(config.outerRadius + 35);// position of the upper part of the circle
@@ -840,7 +819,17 @@ curveFactor = config.curveFactor ;
         .attr("width", config.width)
         .attr("height", config.height) ;
         //.style("background" , "black");  // backgroundcolor
+ 	
+ 	// svg2 is used for bringing back the chart to the original state.
 
+ 	var svg2 = svg.append("svg")
+               .attr("width", config.width)
+        .attr("height", config.height) ;
+        
+ var outerelement = svg2.append("g")
+        .attr("id", "circle")
+        .attr("transform", "translate(" +( (config.width / 2)) + "," + ((config.height /2))+ ")");
+     
     var element = svg.append("g")
         .attr("id", "circle")
         .attr("transform", "translate(" + config.width / 2 + "," + config.height /2+ ")");
@@ -853,13 +842,10 @@ curveFactor = config.curveFactor ;
       }
     });
 
-    	//LATEST TODO :: Circle.on(mouseexit)
-    	// TODO :: fix the mouseover exit thing
-    // needed for fade mouseover
+
     var circle = element.append("circle").attr("r", config.outerRadius + 24 );
+	var circle2 = outerelement.append("circle").attr("r", config.outerRadius + 48 );
     
-
-
     var filter = svg.append('filter').attr('id', 'dropshadow');
     filter.append('feGaussianBlur').attr({
       in: 'SourceAlpha',
@@ -897,7 +883,6 @@ curveFactor = config.curveFactor ;
     });
 
 var infoTimer;
-// TODO :: FIX CIRCLE OUT
     circle.on('mouseout', function() {
 	
       if (infoTimer) {
@@ -1139,13 +1124,14 @@ var infoTimer;
             return p.source.id !== d.id && p.target.id !== d.id;
           });
         });
-        // .on("mouseout", function(d) {
-        //   chord.classed("fade", function(p) {
-        //     return p.source.id == d.id && p.target.id == d.id;
-        //   });
-        // });
+			
+ 	 group.exit().remove();
 
-      group.exit().remove();
+ 	
+ 	 svg2.on("mouseover", function() {
+          chord.classed("fade", false);
+        });
+
 
       // group arc
       var groupPath = group.selectAll('.group-arc')
@@ -1177,6 +1163,7 @@ var infoTimer;
           draw(year, countries.concat(d.id));
         });
 
+        
       // close regions
       groupPath
         .filter(function(d) {
@@ -1250,16 +1237,15 @@ var infoTimer;
           return d.id === d.region;
         })
         .text(function(d) {
-          if (d.id !== d.region) {  // TODO :::: edit here !!!return data.names[d.id] ;
-             return data.names[d.id]  ;  // basically for the inner parts
+          if (d.id !== d.region) {  
+             return data.names[d.id]  ;
           }
         })
-        .attr('transform', function(d) {  // if this is not a region then ::::
+        .attr('transform', function(d) {  
           if (d.id !== d.region) {
 
             return d.angle > Math.PI ? 'translate(0, -4) rotate(180)' : 'translate(0, 4)';
           }
-                      /// if this is a region then :::
 
         })
         .attr('text-anchor', function(d) {
@@ -1271,11 +1257,9 @@ var infoTimer;
           return d.id === d.region ? arcColor(d) : null;
         })
         .classed('fade', function(d) {
-          // hide labels for countries with little migrations
+          													// hide labels for countries with little migrations
           return d.value < config.layout.labelThreshold;
-        });
-// todo ::::
-
+        })
       var groupText2 = groupTextGroup.selectAll('.secondOne')
           .data(function(d) { return [d]; });
 
@@ -1288,17 +1272,14 @@ var infoTimer;
             return d.id === d.region;
           })
           .text(function(d) {
-            if (d.id !== d.region) {  // TODO :::: edit here !!!return data.names[d.id] ;
-              return data.names[d.id]  ;  // basically for the inner parts
+            if (d.id !== d.region) {  
+              return data.names[d.id]  ;
             }
           })
-          .attr('transform', function(d) {  // if this is not a region then ::::
+          .attr('transform', function(d) {
             if (d.id !== d.region) {
-
               return d.angle > Math.PI ? 'translate(0, -4) rotate(180)' : 'translate(0, 4)';
             }
-            /// if this is a region then :::
-
           })
           .attr('text-anchor', function(d) {
             return d.id === d.region ?
@@ -1351,11 +1332,8 @@ var infoTimer;
 
       groupTextPathPath.exit().remove();
 
-       // todo ::: created a new path !!!!
-      /**
-       *Start working from here
-       *
-       */
+       // Creating a Field for the Textfield
+      
       var groupTextPathPath2 = group
           .filter(function(d) {return d.id === d.region})
           .selectAll('.group-textpath-arc2')
@@ -1386,7 +1364,7 @@ var infoTimer;
 
       groupTextPathPath2.exit().remove();
 
-var selecteee = 0 ;
+
       // text on path
       var groupTextPath = groupText
         .filter(function(d) {return d.id === d.region})
@@ -1409,7 +1387,7 @@ var selecteee = 0 ;
               var out = nname1[d.id] ;
               // var out = "second";
             }                         //First NAME  !!!!
-            return  out ; })                  // TODO ::: TEXT editing THESE are for the outer chordLABELS
+            return  out ; })                  
           .attr('startOffset', function(d) {
           if (d.angle > Math.PI/2 && d.angle < Math.PI*3/2) {
             return '75%';
@@ -1419,15 +1397,7 @@ var selecteee = 0 ;
         })
         .attr("xlink:href", function(d, i, k) { return "#group-textpath-arc" + d.id; })
 
-
-      // TODO ::::
-
-        /**
-         * Creating a new Text PAth
-         **/
-
-        var selecteee = 0 ;
-
+	// Added for creating a second layer of TextField for longer names
 
       var groupTextPath2 = groupText2
           .filter(function(d) {return d.id === d.region})
@@ -1446,13 +1416,11 @@ var selecteee = 0 ;
               return  ;
             }
               else if (meanCalc < 1.57 || meanCalc > 4.711 ){
-              var out = nname1[d.id] ;
-            //var out = "first" ;
+              var out = nname1[d.id] ; // var out = "first" ;
             }else {
-              var out = nname2[d.id] ;
-            // var out = "second";
-            }                         //First NAME  !!!!
-            return out;  })                  // TODO ::: TEXT editing THESE are for the outer chordLABELS
+              var out = nname2[d.id] ; // var out = "second";
+            }                         
+            return out;  })           
           .attr('startOffset', function(d) {
             if (d.angle > Math.PI/2 && d.angle < Math.PI*3/2) {
               return '75%';
@@ -1468,11 +1436,6 @@ var selecteee = 0 ;
           return this.getComputedTextLength() > (d.endAngle - d.startAngle) * (config.outerRadius + 18);
         })
         .remove();
-
-
-
-
-
 
       // chords
       var chord = element.selectAll(".chord")
